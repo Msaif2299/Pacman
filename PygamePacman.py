@@ -1,10 +1,12 @@
 import pygame
-from PacmanAndFriends import pacman
+from PacmanAndFriends import pacman, blinky
 from Level import level
 g = level()
 g.setWalls()
 g.setFood()
 p = pacman()
+b = blinky()
+
 direction = 'down'
 pygame.init()
 gameDisplay = pygame.display.set_mode((560, 600))
@@ -16,8 +18,16 @@ height = 30
 boxSize = 20
 food_sprite = pygame.image.load("./images/Food.png")
 food_sprite = pygame.transform.scale(food_sprite, (boxSize, boxSize))
+superfood_sprite = pygame.transform.scale(pygame.image.load("./images/SuperFood.png"), (boxSize, boxSize))
 pac_sprite = [None]*3
-
+ghost_sprite = {}
+GHOST_NAMES = ["Blinky", "Pinky", "Inky", "Clyde"]
+CARDINAL_DIRECTIONS = ["Up", "Down", "Left", "Right"]
+for ghost in GHOST_NAMES:
+    ghost_sprite[ghost] = {}
+for ghost in ghost_sprite.keys():
+    for direction in CARDINAL_DIRECTIONS:
+        ghost_sprite[ghost][direction.lower()] = pygame.transform.scale(pygame.image.load("./images/" + ghost + direction + ".png"), (boxSize, boxSize))
 for i in range(1,4):
     pac_sprite[i-1] = pygame.image.load("./images/Pac" + str(i) + ".png")
     pac_sprite[i-1] = pygame.transform.scale(pac_sprite[i-1], (boxSize, boxSize))
@@ -48,6 +58,7 @@ for i in range(height):
         temp.append(pygame.Rect(j*boxSize, i*boxSize, boxSize, boxSize))
     grid.append(temp)
 pac = getNextSprite('right')
+bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -68,6 +79,12 @@ while True:
                 gameDisplay.blit(pac, (j*boxSize, i*boxSize))
             elif g.board[i][j] == 2:
                 gameDisplay.blit(food_sprite, (j*boxSize, i*boxSize))
+            elif g.board[i][j] == 6:
+                gameDisplay.blit(superfood_sprite, (j*boxSize, i*boxSize))
+            elif g.board[i][j] == 4:
+                gameDisplay.blit(bsprite, (j*boxSize, i*boxSize))
     pac = getNextSprite(p.move(direction, g.board))
+    bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
+    pygame.display.update()
     pygame.display.flip()
     clock.tick(10)

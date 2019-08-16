@@ -48,49 +48,52 @@ class pacman:
         board[self.x][self.y] = 0
         self.x += self.vx
         self.y += self.vy
-        if board[self.x][self.y] in [2, 3, 5, 0]:
+        if board[self.x][self.y] in [2, 3, 5, 0, 6]:
             board[self.x][self.y] = 7
         return self.__direction()
 
 class blinky:
     def __init__(self):
-        self.x = 12
+        self.x = 11
         self.y = 14
         self.direction = 'right'
+        self.prev = 0
 
-    def neighbors(self):
-        pass
+    def neighbors(self, board):
+        possibilities = [(self.x-1, self.y, 'up'), (self.x, self.y-1, 'left'), (self.x+1, self.y, 'down'), (self.x, self.y+1, 'right')]
+        if self.direction == 'down':
+            possibilities.remove((self.x-1, self.y, 'up'))
+        elif self.direction == 'up':
+            possibilities.remove((self.x+1, self.y, 'down'))
+        elif self.direction == 'right':
+            possibilities.remove((self.x, self.y-1, 'left'))
+        elif self.direction == 'left':
+            possibilities.remove((self.x, self.y+1, 'right'))
+        else:
+            raise Exception('Unknown Direction')
+        for x, y, z in possibilities:
+            if (x == 14 and y == 5) or (y == 22 and x == 14) or board[x][y] == 1:
+                continue
+            else:
+                yield (x, y, z)
 
     def move(self, pac, board):
-        if board[pac.x + pac.vx][pac.y + pac.vy] != 1:
-            pass
+        pactomove = [pac.x + 2*pac.vx, pac.y + 2*pac.vy]
+        dist = 20000
+        nextmove = [0, 0, None]
+        for x, y, z in self.neighbors(board):
+            temp = (pactomove[0] - x)**2 + (pactomove[1] - y)**2
+            if temp < dist:
+                dist = temp
+                nextmove = [x, y, z]
+        board[self.x][self.y] = self.prev
+        if board[self.x][self.y] == 7:
+            board[self.x][self.y] = 0
+        self.prev = board[nextmove[0]][nextmove[1]]
+        board[nextmove[0]][nextmove[1]] = 4
+        self.direction = nextmove[2]
+        self.x = nextmove[0]
+        self.y = nextmove[1]
+        return self.direction
 
 
-if __name__ == '__main__':
-    from Level import level
-    from os import system
-    from msvcrt import getch, kbhit
-    g = level()
-    g.setWalls()
-    g.setFood()
-    p = pacman()
-    direction = 'down'
-    count = 0
-    while True:
-        if kbhit():
-            key = ord(getch())
-            if key == 72:
-                    direction = 'left'
-            elif key == 75:
-                    direction = 'up'
-            elif key == 80:
-                    direction = 'right'
-            elif key == 77:
-                    direction = 'down'
-            print(direction)
-        g.printBoardasBlx()
-        if count == 10:
-            p.move(direction, g.board)
-            count = 0
-        system("cls")
-        count += 1

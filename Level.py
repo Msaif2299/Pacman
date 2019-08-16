@@ -77,6 +77,10 @@ class level:
         for x, y in nofood:
             self.board[x][y] = 0
 
+        superfood = [(3, 1), (3, 26), (23, 1), (23, 26)]
+        for x, y in superfood:
+            self.board[x][y] = 6
+
 
     def printBoardasBlx(self):
         for x in self.board:
@@ -85,6 +89,8 @@ class level:
                     print(" ", end='')
                 elif e == 2:
                     print(".", end='')
+                elif e == 6:
+                    print("O", end='')
                 elif e == 7:
                     print('A', end='')
                 else:
@@ -99,4 +105,4 @@ if __name__ == '__main__':
     g = level()
     g.setWalls()
     g.setFood()
-    g.printBoard()
+    g.printBoardasBlx()
