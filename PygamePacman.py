@@ -6,7 +6,6 @@ g.setWalls()
 g.setFood()
 p = pacman()
 b = blinky()
-
 direction = 'down'
 pygame.init()
 gameDisplay = pygame.display.set_mode((560, 600))
@@ -60,6 +59,7 @@ for i in range(height):
 pac = getNextSprite('right')
 bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
 while True:
+    gameDisplay.fill((0,0,0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -85,6 +85,5 @@ while True:
                 gameDisplay.blit(bsprite, (j*boxSize, i*boxSize))
     pac = getNextSprite(p.move(direction, g.board))
     bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
-    pygame.display.update()
     pygame.display.flip()
     clock.tick(10)
