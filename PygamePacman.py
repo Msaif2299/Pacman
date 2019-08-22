@@ -105,6 +105,7 @@ while True:
         ghost.inktrapped = False
         ghost.setFree('inky')
     if tick == 150:
+        tick = 151
         ghost.clydetrapped = False
         ghost.setFree('clyde')
     clock.tick(10)
