@@ -1,11 +1,10 @@
 import pygame
-from PacmanAndFriends import pacman, blinky
+from PacmanAndFriends import pacman, ghosts
 from Level import level
 g = level()
 g.setWalls()
 g.setFood()
 p = pacman()
-b = blinky()
 direction = 'down'
 pygame.init()
 gameDisplay = pygame.display.set_mode((560, 600))
@@ -22,15 +21,15 @@ pac_sprite = [None]*3
 ghost_sprite = {}
 GHOST_NAMES = ["Blinky", "Pinky", "Inky", "Clyde"]
 CARDINAL_DIRECTIONS = ["Up", "Down", "Left", "Right"]
-for ghost in GHOST_NAMES:
-    ghost_sprite[ghost] = {}
-for ghost in ghost_sprite.keys():
+for gh in GHOST_NAMES:
+    ghost_sprite[gh] = {}
+for gh in ghost_sprite.keys():
     for direction in CARDINAL_DIRECTIONS:
-        ghost_sprite[ghost][direction.lower()] = pygame.transform.scale(pygame.image.load("./images/" + ghost + direction + ".png"), (boxSize, boxSize))
+        ghost_sprite[gh][direction.lower()] = pygame.transform.scale(pygame.image.load("./images/" + gh + direction + ".png"), (boxSize, boxSize))
 for i in range(1,4):
     pac_sprite[i-1] = pygame.image.load("./images/Pac" + str(i) + ".png")
     pac_sprite[i-1] = pygame.transform.scale(pac_sprite[i-1], (boxSize, boxSize))
-
+ghost = ghosts()
 count = 0
 
 def getNextSprite(direction):
@@ -57,7 +56,12 @@ for i in range(height):
         temp.append(pygame.Rect(j*boxSize, i*boxSize, boxSize, boxSize))
     grid.append(temp)
 pac = getNextSprite('right')
-bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
+ghost.move(p, g.board)
+bsprite = ghost_sprite["Blinky"][ghost.blinkdirection]
+pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection]
+clydesprite = ghost_sprite["Clyde"][ghost.clydedirection]
+inksprite = ghost_sprite["Inky"][ghost.inkdirection]
+tick = 0  
 while True:
     gameDisplay.fill((0,0,0))
     for event in pygame.event.get():
@@ -81,9 +85,26 @@ while True:
                 gameDisplay.blit(food_sprite, (j*boxSize, i*boxSize))
             elif g.board[i][j] == 6:
                 gameDisplay.blit(superfood_sprite, (j*boxSize, i*boxSize))
-            elif g.board[i][j] == 4:
-                gameDisplay.blit(bsprite, (j*boxSize, i*boxSize))
+    gameDisplay.blit(bsprite, (ghost.blinky*boxSize, ghost.blinkx*boxSize))
+    gameDisplay.blit(pinksprite, (ghost.pinky*boxSize, ghost.pinkx*boxSize))
+    gameDisplay.blit(clydesprite, (ghost.clydey*boxSize, ghost.clydex*boxSize))
+    gameDisplay.blit(inksprite, (ghost.inky*boxSize, ghost.inkx*boxSize))
     pac = getNextSprite(p.move(direction, g.board))
-    bsprite = ghost_sprite["Blinky"][b.move(p, g.board)]
+    ghost.move(p, g.board)
+    bsprite = ghost_sprite["Blinky"][ghost.blinkdirection]
+    pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection]
+    clydesprite = ghost_sprite["Clyde"][ghost.clydedirection]
+    inksprite = ghost_sprite["Inky"][ghost.inkdirection]
     pygame.display.flip()
+    if tick < 150:
+        tick += 1
+    if tick == 50:
+        ghost.pinktrapped = False
+        ghost.setFree('pinky')
+    if tick == 100:
+        ghost.inktrapped = False
+        ghost.setFree('inky')
+    if tick == 150:
+        ghost.clydetrapped = False
+        ghost.setFree('clyde')
     clock.tick(10)
