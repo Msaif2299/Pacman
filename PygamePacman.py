@@ -62,6 +62,7 @@ pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection]
 clydesprite = ghost_sprite["Clyde"][ghost.clydedirection]
 inksprite = ghost_sprite["Inky"][ghost.inkdirection]
 tick = 0  
+slower = 1
 while True:
     gameDisplay.fill((0,0,0))
     for event in pygame.event.get():
@@ -90,7 +91,9 @@ while True:
     gameDisplay.blit(clydesprite, (ghost.clydey*boxSize, ghost.clydex*boxSize))
     gameDisplay.blit(inksprite, (ghost.inky*boxSize, ghost.inkx*boxSize))
     pac = getNextSprite(p.move(direction, g.board))
-    ghost.move(p, g.board)
+    if slower == 0:
+        ghost.move(p, g.board)
+        slower = 2
     bsprite = ghost_sprite["Blinky"][ghost.blinkdirection]
     pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection]
     clydesprite = ghost_sprite["Clyde"][ghost.clydedirection]
@@ -109,3 +112,4 @@ while True:
         ghost.clydetrapped = False
         ghost.setFree('clyde')
     clock.tick(10)
+    slower -= 1
