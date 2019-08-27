@@ -56,12 +56,12 @@ class pacman:
             board[self.x][self.y] = 0   #setting this side of the hallway as empty
             self.y = 0                  #teleporting pacman to the other side of the hallway
             board[self.x][self.y] = 7   #setting the location of pacman on the board
-            return  self.__direction()  #returning the direction of pacman
+            return  [self.__direction(), False]  #returning the direction of pacman
         if self.y + self.vy == -1:      #same logic as before, the only time this happens is when it is in the hallway
             board[self.x][self.y] = 0   #setting this side of the hallway as empty
             self.y = 27                 #teleporting pacman to the other end of the hallway
             board[self.x][self.y] = 7   #setting the location fo pacman on the board
-            return  self.__direction()  #returning the direction of pacman
+            return [self.__direction(), False]  #returning the direction of pacman
         if d == 'up':                   #if the direction to change is 'up'
             if board[self.x-1][self.y] != 1:    #checking if there is nothing blocking it
                 self.vx = -1            #changing the vertical velocity
@@ -79,13 +79,15 @@ class pacman:
                 self.vx = 0             #changing the vertical velocity
                 self.vy = 1             #changing the horizontal velocity
         if board[self.x+self.vx][self.y+self.vy] == 1:  #if the direction is blocked, then just return the direction
-            return  self.__direction()  #returning the direction
+            return  [self.__direction(), False]  #returning the direction
         board[self.x][self.y] = 0       #set the location on the board to 0, because if there was anything, it got eaten
         self.x += self.vx               #update the x coordinate by adding the vertical velocity (x -> row)
         self.y += self.vy               #update the y coordinate by adding the horizontal velocity (y -> column)
-        if board[self.x][self.y] in [2, 3, 5, 0, 6]:    #if the new values are anything like normal pellets, or empty, or super pellets, just set them to 0, as they have now been eaten
+        if board[self.x][self.y] in [2, 3, 5, 0]:    #if the new values are anything like normal pellets, or empty, or super pellets, just set them to 0, as they have now been eaten
             board[self.x][self.y] = 7   #setting the location to hold the new coordinates of the pacman
-        return self.__direction()       #return the direction of the pacman 
+            return [self.__direction(), False]       #return the direction of the pacman
+        board[self.x][self.y] = 7
+        return [self.__direction(), True] 
 
 class ghosts:
     '''
@@ -108,6 +110,9 @@ class ghosts:
         #Setting coordinates and direction of Pinky (x, y, direction) -> (pinkx, pinky, pinkdirection)
         self.clydex, self.clydey, self.clydedirection, self.clydetrapped = 14, 11, 'right', True
         #Setting coordinates and direction of Clyde (x, y, direction) -> (clydex, clydey, clydedirection)
+        self.blinktrapped = False
+        self.frightened = {"blinky": False, "inky": False, "clyde": False, "pinky": False}
+        self.eaten = {"blinky": False, "inky": False, "clyde": False, "pinky": False}
 
 
     def neighbors(self, board, currx, curry, currdir):
@@ -280,34 +285,123 @@ class ghosts:
         elif string == 'pinky': #if the ghost is Pinky
             self.pinkx, self.pinky, self.pinkdirection = 11, 14, 'right'    #then set its coordinates to outside the box
         elif string == 'clyde': #if the ghost is Clyde
-            self.clydex, self.clydey, self.clydedirection = 11, 14, 'left'  #then set its coordinates to outside the box
+            self.clydex, self.clydey, self.clydedirection = 11, 14, 'right'  #then set its coordinates to outside the box
         elif string == 'blinky':    #if the ghost is Blinky
             self.blinkx, self.blinky, self.blinkdirection = 11, 14, 'right' #then set its coordinates to outside the box
 
+    def frightenedmove(self, board, pac, nextx, nexty, nextdir):
+        '''
+        Function to move randomly when frightened
+        Args:
+            board       -> 2D int matrix for pacman game
+            pac         -> pacman object
+            nextx       -> x coordinate of the ghost
+            nexty       -> y coordinate of the ghost
+            nextdir     -> direction the ghost is currently facing (string)
+        Returns:
+            nextmove    -> List consisting of x, y coordinates and directions for the next move
+        '''
+        dist = -2000
+        nextmove = [0, 0, None]
+        for x, y, z in self.neighbors(board, nextx, nexty, nextdir):
+            temp = (pac.x - x)**2 + (pac.y - y)**2
+            if temp > dist:
+                dist = temp
+                nextmove = [x, y, z]
+        return nextmove
 
-    def move(self, pac, board):
+    def movebacktohouse(self, board, nextx, nexty, nextdir, trapped, eaten):
+        '''
+        Function to move back to the ghost house once they have been eaten
+        Args:
+            board       -> 2D int matrix for pacman game
+            nextx       -> x coordinate of the ghost
+            nexty       -> y coordinate of the ghost
+            nextdir     -> direction the ghost is currently facing (string)
+            trapped     -> boolean that represents if the ghost is trapped or not
+            eaten       -> boolean that represents if the ghost is eaten or not
+        Returns:
+            nextmove    -> a list of values that have to be returned consisting of:
+                            1. x coordinate
+                            2. y coordinate
+                            3. direction
+                            4. trapped
+                            5. eaten
+        '''
+        if (nextx == 11 and nexty == 14) or (nextx == 11 and nexty == 13):  #if the coordinates are either (11, 14) or (11, 13)
+            return [14, 11, 'right', True, False]   #trap them
+        return self.movetoposition(board, [11, 14], nextx, nexty, nextdir).extend([False, True])
+        #return the values to be assigned
+
+
+    def movetoposition(self, board, position, nextx, nexty, nextdir):
+        '''
+        Function to aim for a position and have the ghosts move to it
+        Args:
+            board       -> 2D int matrix for pacman game
+            position    -> x and y coordinates of the position to aim for
+            nextx       -> x coordinate of the ghost
+            nexty       -> y coordinate of the ghost
+            nextdir     -> direction the ghost is currently facing (string)
+        Returns:
+            nextmove    -> List consisting of x, y coordinates and directions for the next move
+        '''
+        dist = 20000    #set the distance to a default to calculate the min distance from the available moves
+        nextmove = [0, 0, None] #the next move, set to default
+        for x, y, z in self.neighbors(board, nextx, nexty, nextdir):    #for every possible move
+            temp = (x - position[0])**2 + (y - position[1])**2  #calculate the distance
+            if temp < dist: #if it is lesser than previous min distance
+                dist = temp #set it as the min distance
+                nextmove = [x, y, z]    #and record the move needed to achieve it
+        return nextmove #return the minimum distance move
+
+    def move(self, pac, board, scatter=False, frighten=False):
         '''
         Function to move the ghosts.
         Args:
             pac     -> The Pacman object (For coordinates)
             board   -> 2D matrix for the Pacman game
+            scatter -> boolean that tells the ghost to scatter or not
         Returns:
             Nothing
         '''
         #Blinky is generally free. So we just use Pursue on it.
-        self.blinkx, self.blinky, self.blinkdirection = self.pursuemove([pac.x, pac.y], board, self.blinkx, self.blinky, self.blinkdirection)
+        if not self.blinktrapped:
+            if frighten:
+                self.blinkx, self.blinky, self.blinkdirection = self.frightenedmove(board, pac, self.blinkx, self.blinky, self.blinkdirection)
+            elif not scatter: #if scatter is not set, then pursue
+                self.blinkx, self.blinky, self.blinkdirection =  self.pursuemove([pac.x, pac.y], board, self.blinkx, self.blinky, self.blinkdirection)
+            elif scatter:   #if scatter is set, then aim for the corner piece (1, 26)
+                self.blinkx, self.blinky, self.blinkdirection = self.movetoposition(board, [1, 26], self.blinkx, self.blinky, self.blinkdirection)
+        else:
+            self.blinkx, self.blinky, self.blinkdirection = self.trappedmove(self.blinkx, self.blinky, self.blinkdirection)
         if not self.pinktrapped:    #Check if Pinky is still trapped
             #if pinky is not trapped, then make it pursue Pacman 4 places ahead
-            self.pinkx, self.pinky, self.pinkdirection = self.pursuemove([pac.x + 4*pac.vx, pac.y + 4*pac.vy], board, self.pinkx, self.pinky, self.pinkdirection)
+            if frighten:
+                self.pinkx, self.pinky, self.pinkdirection = self.frightenedmove(board, pac, self.pinkx, self.pinky, self.pinkdirection)
+            elif not scatter: #if scatter is not set, then pursue
+                self.pinkx, self.pinky, self.pinkdirection = self.pursuemove([pac.x + 4*pac.vx, pac.y + 4*pac.vy], board, self.pinkx, self.pinky, self.pinkdirection)
+            elif scatter:   #if scatter is set, then aim for the corner piece (1, 1)
+                self.pinkx, self.pinky, self.pinkdirection = self.movetoposition(board, [1, 1], self.pinkx, self.pinky, self.pinkdirection)
         else:   #If pinky is trapped, then make the trapped moves
             self.pinkx, self.pinky, self.pinkdirection = self.trappedmove(self.pinkx, self.pinky, self.pinkdirection)
         if not self.clydetrapped:   #check if Clyde is not trapped
             #if not trapped, then make it move like Clyde is supposed to
-            self.clydex, self.clydey, self.clydedirection = self.clydemove([pac.x, pac.y], board, self.clydex, self.clydey, self.clydedirection)
+            if frighten:
+                self.clydex, self.clydey, self.clydedirection = self.frightenedmove(board, pac, self.clydex, self.clydey, self.clydedirection)
+            elif not scatter: #if scatter is not set, then move like Clyde
+                self.clydex, self.clydey, self.clydedirection = self.clydemove([pac.x, pac.y], board, self.clydex, self.clydey, self.clydedirection)
+            elif scatter:   #if scatter is set, then aim for the corner (28, 1)
+                self.clydex, self.clydey, self.clydedirection = self.movetoposition(board, [28, 1], self.clydex, self.clydey, self.clydedirection)
         else:   #then Clyde is trapped, then make the trapped moves
             self.clydex, self.clydey, self.clydedirection = self.trappedmove(self.clydex, self.clydey, self.clydedirection)
         if not self.inktrapped:     #check if Inky is not trapped
             #if not trapped, then make it move like Inky is supposed to
-            self.inkx, self.inky, self.inkdirection = self.inkmove(pac, board, self.inkx, self.inky, self.inkdirection)
+            if frighten:
+                self.inkx, self.inky, self.inkdirection = self.frightenedmove(board, pac, self.inkx, self.inky, self.inkdirection)
+            elif not scatter: #if scatter is not set, then move like Inky
+                self.inkx, self.inky, self.inkdirection = self.inkmove(pac, board, self.inkx, self.inky, self.inkdirection)
+            elif scatter:   #if scatter is set, then aim for the corner (28, 26)
+                self.inkx, self.inky, self.inkdirection = self.movetoposition(board, [28, 26], self.inkx, self.inky, self.inkdirection)
         else:   #then Inky is trapped, then make the trapped moves
             self.inkx, self.inky, self.inkdirection = self.trappedmove(self.inkx, self.inky, self.inkdirection)
