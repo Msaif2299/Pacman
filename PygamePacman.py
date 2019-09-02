@@ -1,6 +1,7 @@
 import pygame
 from PacmanAndFriends import pacman, ghosts
 from Level import level
+from Screens import winScreen
 g = level()
 g.setWalls()
 g.setFood()
@@ -10,6 +11,7 @@ pygame.init()
 width = 28
 height = 30
 boxSize = 25
+score = 0
 gameDisplay = pygame.display.set_mode((width*boxSize, height*boxSize))
 pygame.display.set_caption("Pacman")
 clock = pygame.time.Clock()
@@ -19,7 +21,7 @@ food_sprite = pygame.transform.scale(food_sprite, (boxSize, boxSize))
 superfood_sprite = pygame.transform.scale(pygame.image.load("./images/SuperFood.png"), (boxSize, boxSize))
 pac_sprite = [None]*3
 ghost_sprite = {}
-GHOST_NAMES = ["Blinky", "Pinky", "Inky", "Clyde"]
+GHOST_NAMES = ["Blinky", "Pinky", "Inky", "Clyde", "EatenGhost"]
 CARDINAL_DIRECTIONS = ["Up", "Down", "Left", "Right"]
 for gh in GHOST_NAMES:
     ghost_sprite[gh] = {}
@@ -32,7 +34,7 @@ for i in range(1,4):
 frightened_ghost = pygame.transform.scale(pygame.image.load("./images/Scared.png"), (boxSize, boxSize))
 ghost = ghosts()
 count = 0
-
+pellets = sum([row.count(2) for row in g.board])
 def getNextSprite(direction):
     global count
     angle = 0
@@ -58,10 +60,10 @@ for i in range(height):
     grid.append(temp)
 pac = getNextSprite('right')
 ghost.move(p, g.board)
-bsprite = ghost_sprite["Blinky"][ghost.blinkdirection]
-pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection]
-clydesprite = ghost_sprite["Clyde"][ghost.clydedirection]
-inksprite = ghost_sprite["Inky"][ghost.inkdirection]
+bsprite = ghost_sprite["Blinky"][ghost.ghosts["Blinky"]['direction']]
+pinksprite = ghost_sprite["Pinky"][ghost.ghosts["Pinky"]['direction']]
+clydesprite = ghost_sprite["Clyde"][ghost.ghosts["Clyde"]['direction']]
+inksprite = ghost_sprite["Inky"][ghost.ghosts["Inky"]['direction']]
 tick = 0  
 slower = 1
 scatter = True
@@ -73,8 +75,12 @@ frightenTimer = {1: 20, 2: 20}
 frightenTimeLeft = 0
 scatterTime = scatterLevel[level][phase-1][0]
 chaseTime = scatterLevel[level][phase-1][1]
+gameOver = False
 while True:
     scatter = True
+    if pellets == 0:
+        gameOver = False
+        break
     if chaseTime == 'inf' and scatterTime == 0:
         scatter = False
     elif scatterTime == 0 and chaseTime > 0:
@@ -105,33 +111,45 @@ while True:
                 gameDisplay.blit(food_sprite, (j*boxSize, i*boxSize))
             elif g.board[i][j] == 6:
                 gameDisplay.blit(superfood_sprite, (j*boxSize, i*boxSize))
-    gameDisplay.blit(bsprite, (ghost.blinky*boxSize, ghost.blinkx*boxSize))
-    gameDisplay.blit(pinksprite, (ghost.pinky*boxSize, ghost.pinkx*boxSize))
-    gameDisplay.blit(clydesprite, (ghost.clydey*boxSize, ghost.clydex*boxSize))
-    gameDisplay.blit(inksprite, (ghost.inky*boxSize, ghost.inkx*boxSize))
-    pac_next, frighten = p.move(direction, g.board)
+    gameDisplay.blit(bsprite, (ghost.ghosts["Blinky"]['y'] * boxSize, ghost.ghosts["Blinky"]['x'] * boxSize))
+    gameDisplay.blit(pinksprite, (ghost.ghosts["Pinky"]['y'] * boxSize, ghost.ghosts["Pinky"]['x'] * boxSize))
+    gameDisplay.blit(clydesprite, (ghost.ghosts["Clyde"]['y'] * boxSize, ghost.ghosts["Clyde"]['x'] * boxSize))
+    gameDisplay.blit(inksprite, (ghost.ghosts["Inky"]['y'] * boxSize, ghost.ghosts["Inky"]['x'] * boxSize))
+    pac_next, t = p.move(direction, g.board)
+    frighten = True if t == 6 else False
+    if t == 2:
+        pellets -= 1
     if frighten:
         frightenTimeLeft = frightenTimer[level]
     pac = getNextSprite(pac_next)
     if slower == 0:
         ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
         slower = 2
-    bsprite = ghost_sprite["Blinky"][ghost.blinkdirection] if frightenTimeLeft == 0 or ghost.blinktrapped else frightened_ghost
-    pinksprite = ghost_sprite["Pinky"][ghost.pinkdirection] if frightenTimeLeft == 0 or ghost.pinktrapped else frightened_ghost
-    clydesprite = ghost_sprite["Clyde"][ghost.clydedirection] if frightenTimeLeft == 0 or ghost.clydetrapped else frightened_ghost
-    inksprite = ghost_sprite["Inky"][ghost.inkdirection] if frightenTimeLeft == 0 or ghost.inktrapped else frightened_ghost
+    bsprite = ghost_sprite["Blinky"][ghost.ghosts["Blinky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Blinky"]['trapped'] else frightened_ghost
+    print("{}, {}".format(ghost.ghosts["Blinky"]["x"], ghost.ghosts["Blinky"]["y"]))
+    if ghost.ghosts["Blinky"]["eaten"]:
+        bsprite = ghost_sprite["EatenGhost"][ghost.ghosts["Blinky"]['direction']]
+    pinksprite = ghost_sprite["Pinky"][ghost.ghosts["Pinky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Pinky"]['trapped'] else frightened_ghost
+    if ghost.ghosts["Pinky"]["eaten"]:
+        pinksprite = ghost_sprite["EatenGhost"][ghost.ghosts["Pinky"]['direction']]
+    clydesprite = ghost_sprite["Clyde"][ghost.ghosts["Clyde"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Clyde"]['trapped'] else frightened_ghost
+    if ghost.ghosts["Clyde"]["eaten"]:
+        clydesprite = ghost_sprite["EatenGhost"][ghost.ghosts["Clyde"]['direction']]
+    inksprite = ghost_sprite["Inky"][ghost.ghosts["Inky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Inky"]['trapped'] else frightened_ghost
+    if ghost.ghosts["Inky"]["eaten"]:
+        inksprite = ghost_sprite["EatenGhost"][ghost.ghosts["Inky"]['direction']]
     pygame.display.flip()
     if tick < 150:
         tick += 1
     if tick == 50:
-        ghost.pinktrapped = False
+        ghost.ghosts["Pinky"]['trapped'] = False
         ghost.setFree('pinky')
     if tick == 100:
-        ghost.inktrapped = False
+        ghost.ghosts["Inky"]['trapped'] = False
         ghost.setFree('inky')
     if tick == 150:
         tick = 151
-        ghost.clydetrapped = False
+        ghost.ghosts["Clyde"]['trapped'] = False
         ghost.setFree('clyde')
     clock.tick(10)
     slower -= 1
@@ -141,3 +159,6 @@ while True:
         chaseTime -= 1
     if frightenTimeLeft > 0:
         frightenTimeLeft -= 1
+pygame.quit()
+if gameOver == False:
+    winScreen()
