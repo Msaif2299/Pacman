@@ -47,6 +47,12 @@ frightened_ghost = pygame.transform.scale(pygame.image.load("./images/Scared.png
 ghost = ghosts()
 count = 0
 pellets = sum([row.count(2) for row in g.board])
+
+def printAll(ghosts, pac):
+    for g in ghosts.GHOSTS:
+        print('{}: (x: {}, y: {}')
+    print('Pac: (x: {}, y: {}')
+
 def getNextSprite(direction):
     global count
     angle = 0
@@ -85,7 +91,9 @@ scatterLevel = {1: [[14, 40], [14, 40], [10, 40], [10, 'inf']],
                 2: [[14, 40], [14, 40], [10, 1033], [10, 'inf']]}
 frightenTimer = {1: 20, 2: 20}
 frightenTimeLeft = 0
-
+sprite_show_time = 0
+sprite_x, sprite_y = 0, 0
+sprite_value = 0
 scatterTime = scatterLevel[level][phase-1][0]
 chaseTime = scatterLevel[level][phase-1][1]
 gameOver = False
@@ -112,11 +120,13 @@ while True:
             if event.key == pygame.K_RIGHT: direction = 'right'
             if event.key == pygame.K_UP: direction = 'up'
             if event.key == pygame.K_DOWN: direction = 'down'
-    ghosts_eaten = 0
+    ghosts_eaten = ghost.eatenHandler(p)
+    if ghosts_eaten > 0:
+        sprite_show_time = 10
+        sprite_x, sprite_y = p.x, p.y
+        sprite_value = (2**(ghosts_eaten + ghosts_combo))*100
     if slower == 0:
-        ghosts_eaten = ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
-        if ghosts_eaten > 0:
-            gameDisplay.blit(scoreSprite[(2**(ghosts_combo + ghosts_eaten))*100], (p.y * boxSize, p.x * boxSize))
+        ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
         slower = 2
     pac_next, t = p.move(direction, g.board)
     frighten = True if t == 6 else False
@@ -156,6 +166,11 @@ while True:
     inksprite = ghost_sprite["Inky"][ghost.ghosts["Inky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Inky"]['trapped'] else frightened_ghost
     if ghost.ghosts["Inky"]["eaten"]:
         inksprite = ghost_sprite["EatenGhost"][ghost.ghosts["Inky"]['direction']]
+    if sprite_show_time > 0:
+        gameDisplay.blit(scoreSprite[sprite_value], (sprite_y * boxSize, sprite_x * boxSize))
+        sprite_show_time -= 1
+        if sprite_show_time == 0:
+            sprite_value = 0
     pygame.display.flip()
     clock.tick(10)
     slower -= 1

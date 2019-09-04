@@ -273,16 +273,13 @@ class ghosts:
                 nextmove = [x, y, z]    #and record the move needed to achieve it
         return nextmove #return the minimum distance move
 
-    def __eatenHandler(self, pac):
+    def eatenHandler(self, pac):
         x, y = pac.x, pac.y
         t = 0
         for g in self.GHOSTS:
             if self.ghosts[g]['x'] == x and self.ghosts[g]['y'] == y and not self.ghosts[g]['eaten'] and self.ghosts[g]['frightened']:
                 self.ghosts[g]['eaten'] = True
-                print('{} was eaten!'.format(g))
                 t += 1
-            elif self.ghosts[g]['x'] == x and self.ghosts[g]['y'] == y:
-                print('{} was supposed to be eaten but Frighten-> {} and Eaten-> {}'.format(g, self.ghosts[g]['frightened'], self.ghosts[g]['eaten']))
         return t
     def move(self, pac, board, scatter=False, frighten=False):
         '''
@@ -325,5 +322,5 @@ class ghosts:
                         self.ghosts[g]['x'], self.ghosts[g]['y'], self.ghosts[g]['direction'] = self.trappedmove(self.ghosts[g]['x'], self.ghosts[g]['y'], self.ghosts[g]['direction'])
                 else:
                     self.ghosts[g]['x'], self.ghosts[g]['y'], self.ghosts[g]['direction'], self.ghosts[g]['trapped'], self.ghosts[g]['eaten'], self.ghosts[g]['trappedTime'] = self.movebacktohouse(board, self.ghosts[g]['x'], self.ghosts[g]['y'], self.ghosts[g]['direction'], self.ghosts[g]['trapped'], self.ghosts[g]['eaten'])
-        return self.__eatenHandler(pac)
+
        
