@@ -12,12 +12,15 @@ direction = 'down'
 pygame.init()
 YELLOW = (255, 255, 0)
 BLACK = (0, 0, 0)
+boxSize = 25
 font = pygame.font.Font('freesansbold.ttf', 32)
 text = font.render('Score: 0', True, YELLOW, BLACK)
+scoreSprite = {}
+for score in [(2**i)*100 for i in range(1, 5)]:
+    scoreSprite[score] = pygame.transform.scale(pygame.image.load('./images/{}.png'.format(score)), (boxSize, boxSize))
 scoreRect = text.get_rect()
 width = 28
 height = 30
-boxSize = 25
 score = 0
 ghosts_combo = 0
 gameDisplay = pygame.display.set_mode((width*boxSize + 250, height*boxSize))
@@ -82,6 +85,7 @@ scatterLevel = {1: [[14, 40], [14, 40], [10, 40], [10, 'inf']],
                 2: [[14, 40], [14, 40], [10, 1033], [10, 'inf']]}
 frightenTimer = {1: 20, 2: 20}
 frightenTimeLeft = 0
+
 scatterTime = scatterLevel[level][phase-1][0]
 chaseTime = scatterLevel[level][phase-1][1]
 gameOver = False
@@ -108,6 +112,19 @@ while True:
             if event.key == pygame.K_RIGHT: direction = 'right'
             if event.key == pygame.K_UP: direction = 'up'
             if event.key == pygame.K_DOWN: direction = 'down'
+    ghosts_eaten = 0
+    if slower == 0:
+        ghosts_eaten = ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
+        if ghosts_eaten > 0:
+            gameDisplay.blit(scoreSprite[(2**(ghosts_combo + ghosts_eaten))*100], (p.y * boxSize, p.x * boxSize))
+        slower = 2
+    pac_next, t = p.move(direction, g.board)
+    frighten = True if t == 6 else False
+    if t == 2:
+        pellets -= 1
+        score += 10
+    if frighten:
+        frightenTimeLeft = frightenTimer[level]
     for i in range(30):
         for j in range(28):
             if g.board[i][j] == 1:
@@ -126,17 +143,7 @@ while True:
     gameDisplay.blit(clydesprite, (ghost.ghosts["Clyde"]['y'] * boxSize, ghost.ghosts["Clyde"]['x'] * boxSize))
     gameDisplay.blit(inksprite, (ghost.ghosts["Inky"]['y'] * boxSize, ghost.ghosts["Inky"]['x'] * boxSize))
     gameDisplay.blit(text, scoreRect)
-    pac_next, t = p.move(direction, g.board)
-    frighten = True if t == 6 else False
-    if t == 2:
-        pellets -= 1
-        score += 10
-    if frighten:
-        frightenTimeLeft = frightenTimer[level]
     pac = getNextSprite(pac_next)
-    if slower == 0:
-        ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
-        slower = 2
     bsprite = ghost_sprite["Blinky"][ghost.ghosts["Blinky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Blinky"]['trapped'] else frightened_ghost
     if ghost.ghosts["Blinky"]["eaten"]:
         bsprite = ghost_sprite["EatenGhost"][ghost.ghosts["Blinky"]['direction']]
@@ -157,7 +164,12 @@ while True:
     elif chaseTime != 'inf' and chaseTime > 0:
         chaseTime -= 1
     if frightenTimeLeft > 0:
+        ghosts_combo += ghosts_eaten
         frightenTimeLeft -= 1
+        if frightenTimeLeft == 0:
+            score += (2**ghosts_combo) * 100 
+            ghosts_combo = 0
+
 pygame.quit()
 if gameOver == False:
     winScreen()
