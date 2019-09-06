@@ -275,11 +275,19 @@ class ghosts:
 
     def eatenHandler(self, pac):
         x, y = pac.x, pac.y
+        oldx, oldy = pac.oldx, pac.oldy
+        direction = pac.direction()
         t = 0
         for g in self.GHOSTS:
-            if self.ghosts[g]['x'] == x and self.ghosts[g]['y'] == y and not self.ghosts[g]['eaten'] and self.ghosts[g]['frightened']:
-                self.ghosts[g]['eaten'] = True
-                t += 1
+            if not self.ghosts[g]['eaten'] and self.ghosts[g]['frightened']:
+                if self.ghosts[g]['x'] == x:
+                    if self.ghosts[g]['y'] == y or (self.ghosts[g]['y'] == oldy and direction != self.ghosts[g]['direction']):
+                        self.ghosts[g]['eaten'] = True
+                        t += 1
+                elif self.ghosts[g]['y'] == y:
+                    if self.ghosts[g]['x'] == x or (self.ghosts[g]['x'] == oldx and direction != self.ghosts[g]['direction']):
+                        self.ghosts[g]['eaten'] = True
+                        t += 1
         return t
     def move(self, pac, board, scatter=False, frighten=False):
         '''

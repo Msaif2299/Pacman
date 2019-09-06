@@ -14,6 +14,8 @@ class pacman:
                 Starting Velocities = (0, 1)
                 Starting Direction = Right
         '''
+        self.oldx = 0
+        self.oldy = 0
         self.x = 1
         self.y = 1
         self.vx = 0
@@ -38,6 +40,9 @@ class pacman:
         if self.vx == 0 and self.vy == -1:  #return 'left' is vy is -1
             return 'left'
         raise Exception('Unknown direction')    #raise exception if not part of the FOUR CARDINAL DIRECTIONS
+
+    def direction(self):
+        return self.__direction()
 
     def move(self, d, board):
         '''
@@ -81,6 +86,8 @@ class pacman:
         if board[self.x+self.vx][self.y+self.vy] == 1:  #if the direction is blocked, then just return the direction
             return  [self.__direction(), 0]  #returning the direction
         board[self.x][self.y] = 0       #set the location on the board to 0, because if there was anything, it got eaten
+        self.oldx = self.x
+        self.oldy = self.y
         self.x += self.vx               #update the x coordinate by adding the vertical velocity (x -> row)
         self.y += self.vy               #update the y coordinate by adding the horizontal velocity (y -> column)
         if board[self.x][self.y] in [2, 3, 5, 0]:    #if the new values are anything like normal pellets, or empty, or super pellets, just set them to 0, as they have now been eaten
