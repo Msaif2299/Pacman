@@ -156,7 +156,7 @@ phase = 1
 level = 1
 scatterLevel = {1: [[14, 40], [14, 40], [10, 40], [10, 'inf']], 
                 2: [[14, 40], [14, 40], [10, 1033], [10, 'inf']]}
-frightenTimer = {1: 20, 2: 20}
+frightenTimer = {1: 40, 2: 20}
 frightenTimeLeft = 0
 sprite_show_time = 0
 sprite_x, sprite_y = 0, 0
@@ -256,7 +256,6 @@ while True:
         if frightenTimeLeft == 0:
             score += (2**ghosts_combo) * 100 
             ghosts_combo = 0
-
-pygame.quit()
+            
 if gameOver == False:
-    winScreen()
+    winScreen(gameDisplay, score)
