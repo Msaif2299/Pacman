@@ -20,6 +20,8 @@ class pacman:
         self.y = 1
         self.vx = 0
         self.vy = 1
+        self.lives = 3
+
 
     def __direction(self):
         '''

@@ -4,6 +4,73 @@ from ghosts import ghosts
 from Level import level
 from Screens import winScreen
 
+YELLOW = (255, 255, 0)
+BLACK = (0, 0, 0)
+
+def livesDisplay(pac, gameDisplay, width, boxSize, pac_sprite):
+    x_coord = width*boxSize + 50
+    for x in range(pac.lives):
+        gameDisplay.blit(pac_sprite, (x_coord, 200))
+        x_coord += (boxSize + 20)
+
+def newGame():
+    pass
+
+def setBack(pac, ghosts, frightenedTimeLeft, ghosts_combo, direction, game, t):
+    direction = 'down'
+    frightenedTimeLeft = 0
+    ghosts_combo = 0
+    game.board[pac.x][pac.y] = t
+    t = 0
+    pac.oldx = 0
+    pac.oldy = 0
+    pac.x = 1
+    pac.y = 1
+    pac.vx = 0
+    pac.vy = 1
+    game.board[pac.x][pac.y] = 7
+    for g in ghosts.GHOSTS:
+        ghosts.ghosts[g] = {}
+        for var, val in zip(["x", "y", "direction", "trapped", "frightened", "eaten", "trappedTime"], [14, 11, 'right', True, False, False, 0]):
+            ghosts.ghosts[g][var] = val
+    ghosts.ghosts["Blinky"]['x'] = 11
+    ghosts.ghosts["Blinky"]['y'] = 14
+    ghosts.ghosts["Blinky"]['direction'] = 'right'
+    ghosts.ghosts["Blinky"]['trapped'] = False
+    ghosts.ghosts["Pinky"]['x'], ghosts.ghosts["Pinky"]['y'], ghosts.ghosts["Pinky"]['direction'], ghosts.ghosts["Pinky"]['trapped'] = 14, 16, 'left', True
+    for g, time in zip(["Blinky", "Inky", "Pinky", "Clyde"], [i*50 for i in range(4)]):
+            ghosts.ghosts[g]['trappedTime'] = time
+
+def pac_life_reducer(pac, ghosts, gameDisplay, score, frightenedTimeLeft, ghosts_combo, direction, game, t):
+    w, h = pygame.display.get_surface().get_size()
+    for g in ghosts.GHOSTS:
+        if pac.x == ghosts.ghosts[g]['x'] and pac.y == ghosts.ghosts[g]['y'] and not ghosts.ghosts[g]['frightened'] and not ghosts.ghosts[g]['eaten']:
+            pac.lives -= 1
+            if pac.lives < 0:
+                while True:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            quit()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key == pygame.K_RETURN: 
+                                gameDisplay.fill((255, 0, 0))
+                                print("REDDENED")
+                    gameDisplay.fill(BLACK)
+                    font = pygame.font.Font('freesansbold.ttf', 32)
+                    text = font.render('Game Over', True, YELLOW, BLACK)
+                    text_rect = text.get_rect()
+                    text_rect.center = (w//2, h//2)
+                    gameDisplay.blit(text, text_rect)
+                    text = font.render('Score: {}'.format(score), True, YELLOW, BLACK)
+                    text_rect = text.get_rect()
+                    text_rect.center = (w//2, h//2 + 75)
+                    gameDisplay.blit(text, text_rect)
+                    pygame.display.flip()
+            else:
+                setBack(pac, ghosts, frightenedTimeLeft, ghosts_combo, direction, game, t)
+                return
+
 g = level()
 g.setWalls()
 g.setFood()
@@ -110,7 +177,7 @@ while True:
         phase += 1
         scatterTime = scatterLevel[level][phase-1][0]
         chaseTime = scatterLevel[level][phase-1][1]
-    gameDisplay.fill((0,0,0))
+    gameDisplay.fill(BLACK)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -127,9 +194,13 @@ while True:
         sprite_value = (2**(ghosts_eaten + ghosts_combo))*100
     if slower == 0:
         ghost.move(p, g.board, scatter, frightenTimeLeft > 0)
+        pac_life_reducer(p, ghost, gameDisplay, score, frightenTimeLeft, ghosts_combo, direction, g, 0)
         slower = 2
     pac_next, t = p.move(direction, g.board)
+    pac_life_reducer(p, ghost, gameDisplay, score, frightenTimeLeft, ghosts_combo, direction, g, t)
     frighten = True if t == 6 else False
+    if t == 6:
+        score += 50
     if t == 2:
         pellets -= 1
         score += 10
@@ -154,6 +225,7 @@ while True:
     gameDisplay.blit(inksprite, (ghost.ghosts["Inky"]['y'] * boxSize, ghost.ghosts["Inky"]['x'] * boxSize))
     gameDisplay.blit(text, scoreRect)
     pac = getNextSprite(pac_next)
+    livesDisplay(p, gameDisplay, width, boxSize, pac_sprite[2])
     bsprite = ghost_sprite["Blinky"][ghost.ghosts["Blinky"]['direction']] if frightenTimeLeft == 0 or ghost.ghosts["Blinky"]['trapped'] else frightened_ghost
     if ghost.ghosts["Blinky"]["eaten"]:
         bsprite = ghost_sprite["EatenGhost"][ghost.ghosts["Blinky"]['direction']]
