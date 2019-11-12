@@ -1,5 +1,5 @@
 # Pacman AI implementation using Reinforcement Learning#
-##Introduction:##
+<h2>Introduction:</h2>
 The project is based on the implementation of the Pacman game and an implementation of an AI to play the game, developed using Deep Reinforcement Learning. 
 The techniques used in this project are:
 •	Deep Learning
