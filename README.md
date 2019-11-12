@@ -1,4 +1,4 @@
-# Pacman AI implementation using Reinforcement Learning#
+# Pacman AI implementation using Reinforcement Learning
 <h2>Introduction:</h2>
 The project is based on the implementation of the Pacman game and an implementation of an AI to play the game, developed using Deep Reinforcement Learning. <br>
 The techniques used in this project are:
@@ -37,20 +37,21 @@ This is just a log file that keeps track of the callbacks.</li>
 <li>	Gym</li>
 <li>	Tensorflow</li>
 <li>	Pip</li>
-<li>	Jupyter Notebook</li>
+<li>	Jupyter Notebook</li></ul>
 <br>
 <h2>Setting up the GYM environment:</h2>
 Go to the pac folder. Open command prompt/terminal from that folder. Enter:<br>
-	```pip install -e```<br>
+	<code>pip install -e</code><br>
 This will install the environment.<br>
 <h2>Execution:</h2>
 Open Pac.ipynb and set the variable from:<br>
-	```mode = “train”```<br>
+	 <code>mode = “train”</code><br>
 to<br>
-	```mode = “test”```<br>
+	<code>mode = “test”</code><br>
 And run all the cells.<br>
-(<u><b>NOTE</b></u>: if you wish to train the model yourself, then leave the variable as it is, and just run all the cells. Make sure the “mode” variable is set to “train” and not “test”.<br>
-<h2>Output</h2>:
+(<u><b>NOTE</b></u>: If you wish to train the model yourself, then leave the variable as it is, and just run all the cells. Make sure the “mode” variable is set to “train” and not “test”.)<br>
+<h2>Output:</h2>
 A very fast game, is played. Will have to minimize the jupyter notebook, that is running the script.<br>
-<h2>Remarks</h2>:
+<img src="https://raw.githubusercontent.com/Msaif2299/Pacman/blob/master/OP.PNG"><br>
+<h2>Remarks:</h2>
 The AI will perform better with more training. An approximate of 20 days worth of training with better tuned parameters should get us somewhere. This model attached, is with only approximately 1 hour of training.
