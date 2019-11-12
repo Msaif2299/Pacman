@@ -1,0 +1,1 @@
+from _pac.envs.pac import PacmanPygame

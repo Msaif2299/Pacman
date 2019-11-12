@@ -1,0 +1,1 @@
+This environment is meant to simulate the first level of the Pacman game.
