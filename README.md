@@ -1,5 +1,5 @@
-# Pacman AI implementation using Reinforcement Learning
-##Introduction:
+# Pacman AI implementation using Reinforcement Learning#
+##Introduction:##
 The project is based on the implementation of the Pacman game and an implementation of an AI to play the game, developed using Deep Reinforcement Learning. 
 The techniques used in this project are:
 •	Deep Learning
@@ -7,10 +7,10 @@ The techniques used in this project are:
 •	Simulated Annealing
 •	Heuristics
 The Pacman game is implemented using pygame, and converted into a GYM environment. After that, the keras-rl library is used to make, train and test the model. 
-##Files:
-•	###setup.py
+##Files:##
+•	###setup.py###
 Contains variables to set up the gym environment.  
-•	###__init__.py
+•	###__init__.py###
 Sets up the environment. Used by gym.
 •	###ghosts.py
 Contains the class for the ghosts. Has all the functions that the ghosts need, like move, return to home, etc.
