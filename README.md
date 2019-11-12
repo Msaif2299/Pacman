@@ -1,34 +1,35 @@
 # Pacman AI implementation using Reinforcement Learning#
 <h2>Introduction:</h2>
-The project is based on the implementation of the Pacman game and an implementation of an AI to play the game, developed using Deep Reinforcement Learning. 
+The project is based on the implementation of the Pacman game and an implementation of an AI to play the game, developed using Deep Reinforcement Learning. <br>
 The techniques used in this project are:
-•	Deep Learning
-•	Q Learning
-•	Simulated Annealing
-•	Heuristics
+<ul><li>	Deep Learning</li>
+<li>	Q Learning</li>
+<li>	Simulated Annealing</li>
+<li>	Heuristics</li></ul><br>
 The Pacman game is implemented using pygame, and converted into a GYM environment. After that, the keras-rl library is used to make, train and test the model. 
-##Files:##
-•	###setup.py###
-Contains variables to set up the gym environment.  
-•	###__init__.py###
+<h2>Files:</h2>
+<ul>	<li><h2>setup.py</h2>
+Contains variables to set up the gym environment.  </li>
+<li><h2>__init__.py<li><h2>
 Sets up the environment. Used by gym.
-•	###ghosts.py
+<li><h2>ghosts.py
 Contains the class for the ghosts. Has all the functions that the ghosts need, like move, return to home, etc.
-•	###Level.py
+<li><h2>Level.py
 Contains the functions that set the level design up. Like setting all the food, superfood, walls, etc. up.
-•	###pac.py
+•	<li><h2>pac.py
 Contains the functions for the pacman entity. Has all the functions like move, eat, respawn, etc. (not named as such, but perform the following).
-•	###PygamePacman.py
+•	<li><h2>PygamePacman.py
 This is the main file with the class that gym uses to interface with the game environment. This file consists of the game loop, defined as per as the gym definition requires it. Has graphic rendering functions, game system functioning, score handling, etc.
-•	###Screens.py
+•	<li><h2>Screens.py
 This file consists of the game over screen. Uses pygame to render the graphics.
-•	###Pac.ipynb
+•	<li><h2>Pac.ipynb
 This file consists of the model training script and the model testing scripts. It generates the model and tests it.
-•	###dqn_pac-v0_weights.hp5
+•	<li><h2>dqn_pac-v0_weights.hp5
 This is the model that is saved. Using keras-rl library.
-•	###dqn_pac-v0_log.json
+•	<li><h2>dqn_pac-v0_log.json
 This is just a log file that keeps track of the callbacks.
-###Dependencies:
+</ul>
+Dependencies:
 •	Python 3
 •	Pygame
 •	Keras-rl
@@ -37,11 +38,11 @@ This is just a log file that keeps track of the callbacks.
 •	Tensorflow
 •	Pip
 •	Jupyter Notebook
-###Setting up the GYM environment:
+Setting up the GYM environment:
 Go to the pac folder. Open command prompt/terminal from that folder. Enter:
 	```pip install -e```
 This will install the environment.
-###Execution:
+Execution:
 Open Pac.ipynb and set the variable from:
 	```mode = “train”```
 to
