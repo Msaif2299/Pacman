@@ -10,24 +10,24 @@ The Pacman game is implemented using pygame, and converted into a GYM environmen
 <h2>Files:</h2>
 <ul>	<li><h2>setup.py</h2>
 Contains variables to set up the gym environment.  </li>
-<li><h2>__init__.py<li><h2>
-Sets up the environment. Used by gym.
-<li><h2>ghosts.py
-Contains the class for the ghosts. Has all the functions that the ghosts need, like move, return to home, etc.
-<li><h2>Level.py
-Contains the functions that set the level design up. Like setting all the food, superfood, walls, etc. up.
-•	<li><h2>pac.py
-Contains the functions for the pacman entity. Has all the functions like move, eat, respawn, etc. (not named as such, but perform the following).
-•	<li><h2>PygamePacman.py
-This is the main file with the class that gym uses to interface with the game environment. This file consists of the game loop, defined as per as the gym definition requires it. Has graphic rendering functions, game system functioning, score handling, etc.
-•	<li><h2>Screens.py
-This file consists of the game over screen. Uses pygame to render the graphics.
-•	<li><h2>Pac.ipynb
-This file consists of the model training script and the model testing scripts. It generates the model and tests it.
-•	<li><h2>dqn_pac-v0_weights.hp5
-This is the model that is saved. Using keras-rl library.
-•	<li><h2>dqn_pac-v0_log.json
-This is just a log file that keeps track of the callbacks.
+<li><h2>__init__.py</h2>
+Sets up the environment. Used by gym.</li>
+<li><h2>ghosts.py</h2>
+Contains the class for the ghosts. Has all the functions that the ghosts need, like move, return to home, etc.</li>
+<li><h2>Level.py</h2>
+Contains the functions that set the level design up. Like setting all the food, superfood, walls, etc. up.</li>
+•	<li><h2>pac.py</h2>
+Contains the functions for the pacman entity. Has all the functions like move, eat, respawn, etc. (not named as such, but perform the following).</li>
+•	<li><h2>PygamePacman.py</h2>
+This is the main file with the class that gym uses to interface with the game environment. This file consists of the game loop, defined as per as the gym definition requires it. Has graphic rendering functions, game system functioning, score handling, etc.</li>
+•	<li><h2>Screens.py</h2>
+This file consists of the game over screen. Uses pygame to render the graphics.</li>
+•	<li><h2>Pac.ipynb</h2>
+This file consists of the model training script and the model testing scripts. It generates the model and tests it.</li>
+•	<li><h2>dqn_pac-v0_weights.hp5</h2>
+This is the model that is saved. Using keras-rl library.</li>
+•	<li><h2>dqn_pac-v0_log.json</h2>
+This is just a log file that keeps track of the callbacks.</li>
 </ul>
 Dependencies:
 •	Python 3
