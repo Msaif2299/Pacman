@@ -52,6 +52,6 @@ And run all the cells.<br>
 (<u><b>NOTE</b></u>: If you wish to train the model yourself, then leave the variable as it is, and just run all the cells. Make sure the “mode” variable is set to “train” and not “test”.)<br>
 <h2>Output:</h2>
 A very fast game, is played. Will have to minimize the jupyter notebook, that is running the script.<br>
-<img src="https://raw.githubusercontent.com/Msaif2299/Pacman/blob/master/OP.PNG"><br>
+<img src="https://github.com/Msaif2299/Pacman/blob/master/OP.PNG"><br>
 <h2>Remarks:</h2>
 The AI will perform better with more training. An approximate of 20 days worth of training with better tuned parameters should get us somewhere. This model attached, is with only approximately 1 hour of training.
